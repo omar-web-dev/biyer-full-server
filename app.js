@@ -1,41 +1,62 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const cors = require('cors');
-require('dotenv').config()
-const port = process.env.PORT || 8080;
+const cors = require("cors");
+const port = process.env.PORT || 5000;
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+require("dotenv").config();
 
-/**
- * @description add default middleware for express application.
- */
 app.use(express.json());
 app.use(cors());
 
-const { errorHandler } = require('./middleware/errorHandler');
-const { connectToServer } = require('./database/database.config');
+const DB_USER = "biyer-full"
+const DB_PASSWORD = "AWuFoJs2GI26Wjrn"
+const IMGBB_API = "6a56f720ef5af169c2b3789d5fb3086f"
+
+const uri = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.vbwbv4w.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverApi: ServerApiVersion.v1,
+});
+
+const run = async () => {
+    try {
+        const userCallection = client.db('biyer-ful').collection('users')
+        await client.connect();
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCallection.insertOne(user);
+            console.log(result)
+            res.send(result);
+        });
 
 
-connectToServer((error) => {
-    if (!error) {
-        app.listen(port, () => {
-            console.log(`server is running port ${port}`);
+        app.get('/users', async (req, res) => {
+            const search = req.query.search
+            console.log(search)
+            const query = {};
+            const users = await userCallection.find(query).toArray();
+            res.send(users);
+        });
+
+        app.get('/users/:id', async (req, res) => {
+            let query = {}
+            const id = req.query.id;
+            query = { _id: ObjectId(id) };
+            const cursor = await userCallection.find(query)
+            const result = await cursor.toArray()
+            res.send(result)
         })
-    } else {
-        console.log(error);
+
+        console.log("Connected to Database");
+    } finally {
     }
-})
+};
 
-app.get('/', (req, res) => {
-    res.json('server is running');
+run().catch(console.dir);
+
+app.get("/", (req, res) => {
+    res.send("Biyer-full");
 });
-
-
-app.get('*', (req, res) => {
-    res.status(400).send({ status: 'failed', message: 'there was no any route found.' })
-});
-
-app.use(errorHandler)
-
-process.on('unhandledRejection', (error) => {
-    console.log(error.name, error.message);
-    app.close(() => { process.exit(1) })
-});
+app.listen(port, () => console.log(`Listening on port http://localhost:${port}`));
