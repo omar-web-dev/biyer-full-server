@@ -53,16 +53,19 @@ const run = async () => {
         });
 
         // find user by id
-        // app.get('/users/:id', async (req, res) => {
-        //     const userId = req.params.id;
-        //     const user = await userCallection.findOne({_id : new ObjectId(userId)} );
-        //     console.log(userId)
-        //     console.log(user)
-        //     if (!user) {
-        //         return res.status(404).json({ message: 'User not found' });
-        //     }
-        //     res.json(user);
-        // });
+        app.get('/user/:id', async (req, res) => {
+            const userId = req.params.id;
+            const user = await userCallection.findOne({_id : new ObjectId(userId)} );
+            console.log(userId)
+            console.log(user)
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json(user);
+        });
+
+
+
 
         console.log("Connected to Database");
     } finally {
