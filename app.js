@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const port = process.env.PORT || 5000;
+const port = 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
@@ -27,9 +27,9 @@ const run = async () => {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await userCallection.insertOne(user);
-            console.log(result)
             res.send(result);
         });
+
 
 
         app.get('/users', async (req, res) => {
@@ -44,8 +44,6 @@ const run = async () => {
         app.get('/users/:email', async (req, res) => {
             const userEmail = req.params.email;
             const user = await userCallection.findOne({email : userEmail} );
-            console.log(userEmail)
-            console.log(user)
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
@@ -56,8 +54,6 @@ const run = async () => {
         app.get('/user/:id', async (req, res) => {
             const userId = req.params.id;
             const user = await userCallection.findOne({_id : new ObjectId(userId)} );
-            console.log(userId)
-            console.log(user)
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
