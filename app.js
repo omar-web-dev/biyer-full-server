@@ -27,6 +27,7 @@ const run = async () => {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await userCallection.insertOne(user);
+            console.log(result)
             res.send(result);
         });
 
